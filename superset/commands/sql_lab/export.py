@@ -131,7 +131,8 @@ class SqlResultExportCommand(BaseCommand):
                 self._query.schema,
             )[:limit]
 
-        csv_data = csv.df_to_escaped_csv(df, index=False, **config["CSV_EXPORT"])
+        csv_string = csv.df_to_escaped_csv(df, index=False, **config["CSV_EXPORT"])
+        csv_data = csv_string.encode(config["CSV_EXPORT"].get("encoding", "utf-8"))
 
         return {
             "query": self._query,
