@@ -23,9 +23,11 @@ from urllib.error import URLError
 import numpy as np
 import pandas as pd
 
+from superset import app
 from superset.utils import json
 from superset.utils.core import GenericDataType
 
+config = app.config
 logger = logging.getLogger(__name__)
 
 negative_number_re = re.compile(r"^-[0-9.]+$")
@@ -78,7 +80,8 @@ def df_to_escaped_csv(df: pd.DataFrame, **kwargs: Any) -> Any:
                 if isinstance(value, str):
                     df.at[idx, name] = escape_value(value)
 
-    return df.to_csv(escapechar="\\", **kwargs)
+    csv_string = df.to_csv(escapechar="\\", **kwargs)
+    return csv_string.encode(config["CSV_EXPORT"].get("encoding", "utf-8"))
 
 
 def get_chart_csv_data(
