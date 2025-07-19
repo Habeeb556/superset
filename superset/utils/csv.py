@@ -79,7 +79,8 @@ def df_to_escaped_csv(df: pd.DataFrame, **kwargs: Any) -> Any:
             for idx, value in enumerate(column.values):
                 if isinstance(value, str):
                     df.at[idx, name] = escape_value(value)
-
+    
+    # Encode using the specified encoding (default to utf-8 if not set)
     csv_string = df.to_csv(escapechar="\\", **kwargs)
     return csv_string.encode(config["CSV_EXPORT"].get("encoding", "utf-8"))
 
