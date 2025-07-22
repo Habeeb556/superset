@@ -454,6 +454,7 @@ class TestSqlLabApi(SupersetTestCase):
 
         resp = self.get_resp("/api/v1/sqllab/export/test/")
         data = csv.reader(io.StringIO(resp))
+        data = [[cell.lstrip('\ufeff') for cell in row] for row in data]
         expected_data = csv.reader(io.StringIO("foo\n1\n2"))
 
         assert list(expected_data) == list(data)
