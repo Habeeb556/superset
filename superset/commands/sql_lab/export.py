@@ -131,9 +131,9 @@ class SqlResultExportCommand(BaseCommand):
                 self._query.schema,
             )[:limit]
 
-        # Manual encoding using the specified encoding (default to utf-8 if not set)
+        # Manual encoding using the specified encoding (default to utf-8-sig if not set)
         csv_string = csv.df_to_escaped_csv(df, index=False, **config["CSV_EXPORT"])
-        csv_data = csv_string.encode(config["CSV_EXPORT"].get("encoding", "utf-8"))
+        csv_data = csv_string.encode(config["CSV_EXPORT"].get("encoding", "utf-8-sig"))
 
         return {
             "query": self._query,
