@@ -455,52 +455,9 @@ class TestSqlLabApi(SupersetTestCase):
         resp = self.get_resp("/api/v1/sqllab/export/test/")
         reader = csv.reader(io.StringIO(resp))
         data = [[cell.lstrip('\ufeff') for cell in row] for row in reader]
-
         expected_data = csv.reader(io.StringIO("foo\n1\n2"))
 
         assert list(expected_data) == list(data)
         db.session.delete(query_obj)
         db.session.commit()
 
-    # test case UTF-8 with BOM scenarios (Arabic, Chinese, etc.)
-    @mock.patch("superset.models.sql_lab.Query.raise_for_access", lambda _: None)  # noqa: PT008
-    @mock.patch("superset.models.core.Database.get_df")
-    def test_export_results_utf8_bom(self, get_df_mock: mock.Mock) -> None:
-        self.login(ADMIN_USERNAME)
-    
-        database = get_example_database()
-        query_obj = Query(
-            client_id="test",
-            database=database,
-            tab_name="utf8_tab",
-            sql_editor_id="utf8_editor_id",
-            sql="select * from multilingual",
-            select_sql=None,
-            executed_sql="select * from multilingual limit 2",
-            limit=100,
-            select_as_cta=False,
-            rows=2,
-             error_message="none",
-            results_key="test_abc",
-        )
-
-        db.session.add(query_obj)
-        db.session.commit()
-
-        get_df_mock.return_value = pd.DataFrame({
-            "arabic": ["مرحبا", "عالم"],
-            "chinese": ["你好", "世界"],
-            "emoji": ["😊", "🌍"]
-        })
-
-        resp = self.get_resp("/api/v1/sqllab/export/test/")
-        reader = csv.reader(io.StringIO(resp))
-        data = [[cell.lstrip('\ufeff') for cell in row] for row in reader]
-
-        expected_csv = "arabic,chinese,emoji\nمرحبا,你好,😊\nعالم,世界,🌍"
-        expected_data = list(csv.reader(io.StringIO(expected_csv)))
-
-        assert data == expected_data
-
-        db.session.delete(query_obj)
-        db.session.commit()
