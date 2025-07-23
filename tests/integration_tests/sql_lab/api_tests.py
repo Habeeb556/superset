@@ -460,4 +460,3 @@ class TestSqlLabApi(SupersetTestCase):
         assert list(expected_data) == list(data)
         db.session.delete(query_obj)
         db.session.commit()
-
