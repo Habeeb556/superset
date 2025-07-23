@@ -428,7 +428,6 @@ class TestSqlLabApi(SupersetTestCase):
 
     @mock.patch("superset.models.sql_lab.Query.raise_for_access", lambda _: None)  # noqa: PT008
     @mock.patch("superset.models.core.Database.get_df")
-    # This test verifies that the SQL Lab export endpoint correctly returns a UTF-8 BOM-prefixed CSV
     def test_export_results(self, get_df_mock: mock.Mock) -> None:
         self.login(ADMIN_USERNAME)
 
@@ -455,7 +454,7 @@ class TestSqlLabApi(SupersetTestCase):
         get_df_mock.return_value = pd.DataFrame({
             "foo": [1, 2],
             "مرحبا": ["أ", "ب"],
-            "你好": ["一", "二"],
+            "姓名": ["张", "李"],
         })
 
         resp = self.get_resp("/api/v1/sqllab/export/test/")
@@ -469,13 +468,11 @@ class TestSqlLabApi(SupersetTestCase):
 
         # Expected header and rows
         expected = [
-            ["foo", "مرحبا", "你好"],
-            ["1", "أ", "一"],
-            ["2", "ب", "二"],
+            ["foo", "مرحبا", "姓名"],
+            ["1", "أ", "张"],
+            ["2", "ب", "李"],
         ]
 
-        assert data == expected
-
+        assert list(expected_data) == list(data)
         db.session.delete(query_obj)
         db.session.commit()
-    
