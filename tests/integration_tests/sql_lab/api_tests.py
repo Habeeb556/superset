@@ -428,35 +428,53 @@ class TestSqlLabApi(SupersetTestCase):
 
     @mock.patch("superset.models.sql_lab.Query.raise_for_access", lambda _: None)  # noqa: PT008
     @mock.patch("superset.models.core.Database.get_df")
+    # This test verifies that the SQL Lab export endpoint correctly returns a UTF-8 BOM-prefixed CSV
     def test_export_results(self, get_df_mock: mock.Mock) -> None:
-        self.login(ADMIN_USERNAME)
+    self.login(ADMIN_USERNAME)
 
-        database = get_example_database()
-        query_obj = Query(
-            client_id="test",
-            database=database,
-            tab_name="test_tab",
-            sql_editor_id="test_editor_id",
-            sql="select * from bar",
-            select_sql=None,
-            executed_sql="select * from bar limit 2",
-            limit=100,
-            select_as_cta=False,
-            rows=104,
-            error_message="none",
-            results_key="test_abc",
-        )
+    database = get_example_database()
+    query_obj = Query(
+        client_id="test",
+        database=database,
+        tab_name="test_tab",
+        sql_editor_id="test_editor_id",
+        sql="select * from bar",
+        select_sql=None,
+        executed_sql="select * from bar limit 2",
+        limit=100,
+        select_as_cta=False,
+        rows=104,
+        error_message="none",
+        results_key="test_abc",
+    )
 
-        db.session.add(query_obj)
-        db.session.commit()
+    db.session.add(query_obj)
+    db.session.commit()
 
-        get_df_mock.return_value = pd.DataFrame({"foo": [1, 2, 3]})
+    # Include multilingual data
+    get_df_mock.return_value = pd.DataFrame({
+        "foo": [1, 2],
+        "مرحبا": ["أ", "ب"],
+        "你好": ["一", "二"],
+    })
 
-        resp = self.get_resp("/api/v1/sqllab/export/test/")
-        reader = csv.reader(io.StringIO(resp))
-        data = [[cell.lstrip("\ufeff") for cell in row] for row in reader]
-        expected_data = csv.reader(io.StringIO("foo\n1\n2"))
+    resp = self.get_resp("/api/v1/sqllab/export/test/")
 
-        assert list(expected_data) == list(data)
-        db.session.delete(query_obj)
-        db.session.commit()
+    # Check for UTF-8 BOM
+    assert resp.startswith("\ufeff")
+
+    # Parse CSV
+    reader = csv.reader(io.StringIO(resp))
+    data = list(reader)
+
+    # Expected header and rows
+    expected = [
+        ["foo", "مرحبا", "你好"],
+        ["1", "أ", "一"],
+        ["2", "ب", "二"],
+    ]
+
+    assert data == expected
+
+    db.session.delete(query_obj)
+    db.session.commit()
