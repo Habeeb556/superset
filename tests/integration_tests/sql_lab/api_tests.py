@@ -463,6 +463,8 @@ class TestSqlLabApi(SupersetTestCase):
         db.session.commit()
 
     # test case UTF-8 with BOM scenarios (Arabic, Chinese, etc.)
+    @mock.patch("superset.models.sql_lab.Query.raise_for_access", lambda _: None)  # noqa: PT008
+    @mock.patch("superset.models.core.Database.get_df")
     def test_export_results_utf8_bom(self, get_df_mock: mock.Mock) -> None:
         self.login(ADMIN_USERNAME)
     
