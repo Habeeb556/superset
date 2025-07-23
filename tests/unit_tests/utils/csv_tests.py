@@ -75,7 +75,7 @@ def test_df_to_escaped_csv():
 
     escaped_csv_str = csv.df_to_escaped_csv(
         df,
-        encoding="utf-8-sig",
+        encoding="utf-8",
         index=False,
         header=False,
     )
@@ -94,4 +94,4 @@ def test_df_to_escaped_csv():
     ]
 
     df = pa.array([1, None]).to_pandas(integer_object_nulls=True).to_frame()
-    assert csv.df_to_escaped_csv(df, encoding="utf-8-sig", index=False) == '0\n1\n""\n'
+    assert csv.df_to_escaped_csv(df, encoding="utf-8", index=False) == '0\n1\n""\n'
