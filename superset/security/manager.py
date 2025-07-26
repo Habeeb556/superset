@@ -2303,7 +2303,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
                         parts.remove(catalog)
                         # Rebuild schema_perm with brackets
                         schema_perm = "[" + "].[".join(parts) + "]"
-                        
+
                 if schema_perm and self.can_access("schema_access", schema_perm):
                     continue
 
