@@ -2293,22 +2293,6 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
                     table_.catalog,
                     table_.schema,
                 )
-                if schema_perm and table_.catalog:
-                    # Remove brackets and split into parts
-                    parts = schema_perm.strip("[]").split("].[")
-                    parts = [p.strip() for p in parts]
-                    catalog = table_.catalog.strip()
-                    # If catalog is in the parts, remove it
-                    parts_lower = [p.lower() for p in parts]
-                    if (
-                        len(parts_lower) >= 2
-                        and parts_lower[0] == parts_lower[1]
-                        and catalog in parts
-                    ):
-                        parts.remove(catalog)
-                        # Rebuild schema_perm with brackets
-                        schema_perm = "[" + "].[".join(parts) + "]"
-
                 if schema_perm and self.can_access("schema_access", schema_perm):
                     continue
 
