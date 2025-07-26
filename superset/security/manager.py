@@ -445,7 +445,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
             return None
 
         if catalog:
-            return f"[{database}].[{catalog}].[{schema}]"
+            return f"[{database}].[{schema}]"
 
         return f"[{database}].[{schema}]"
 
