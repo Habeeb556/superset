@@ -445,9 +445,9 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
             return None
 
         if catalog:
-            return f"[{catalog}].[{schema}]"
+            return f"[{database}].[{catalog}].[{schema}]"
 
-        return f"[{database}].[{schema}]"
+        return f"[{catalog}].[{schema}]"
 
     @staticmethod
     def get_database_perm(database_id: int, database_name: str) -> Optional[str]:
