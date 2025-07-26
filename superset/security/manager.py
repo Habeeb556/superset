@@ -2299,7 +2299,8 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
                     parts = [p.strip() for p in parts]
                     catalog = table_.catalog.strip()
                     # If catalog is in the parts, remove it
-                    if len(parts) == 3 and catalog in parts:
+                    parts_lower = [p.lower() for p in parts]
+                    if len(parts_lower) >= 2 and parts_lower[0] == parts_lower[1] and catalog in parts:
                         parts.remove(catalog)
                         # Rebuild schema_perm with brackets
                         schema_perm = "[" + "].[".join(parts) + "]"
